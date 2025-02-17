@@ -12,7 +12,7 @@ class BreachProtocolOutput:
     coordinateList: Optional[list[list[tuple[int, int]]]] = None
     executionTime: Optional[int] = None
 
-def breachProtocol(input: BreachProtocolInput) -> BreachProtocolOutput:
+def breachProtocol(input: BreachProtocolInput, mode: str) -> BreachProtocolOutput:
     startTime = time.time()
 
     sequences = listOfSequences(input.matrix, input.buffer)
@@ -20,16 +20,31 @@ def breachProtocol(input: BreachProtocolInput) -> BreachProtocolOutput:
     maxSeqs = []
     maxCoords = []
     maxValue = 0
-    for seq in sequences:
-        val = sequenceValue(seq[0], input.sequenceList)
-        if (val > maxValue):
-            maxSeqs = [seq[0]]
-            maxCoords = [seq[1]]
-            maxValue = val
-        elif (val == maxValue and val != 0):
-            if (seq[0] not in maxSeqs):
-                maxSeqs = maxSeqs + [seq[0]]
-                maxCoords = maxCoords + [seq[1]]
+    if (mode == "single"):
+        for seq in sequences:
+            val = sequenceValue(seq[0], input.sequenceList)
+            if (val > maxValue):
+                maxSeqs = [seq[0]]
+                maxCoords = [seq[1]]
+                maxValue = val
+            elif (val == maxValue and val != 0 and len(seq[0]) < len(maxSeqs[0])):
+                maxSeqs = [seq[0]]
+                maxCoords = [seq[1]]
+    else: # all
+        for seq in sequences:
+            val = sequenceValue(seq[0], input.sequenceList)
+            if (val > maxValue):
+                maxSeqs = [seq[0]]
+                maxCoords = [seq[1]]
+                maxValue = val
+            elif (val == maxValue and val != 0):
+                if (len(seq[0]) == len(maxSeqs[0])):
+                    maxSeqs = maxSeqs + [seq[0]]
+                    maxCoords = maxCoords + [seq[1]]
+                elif (len(seq[0]) < len(maxSeqs[0])):
+                    maxSeqs = [seq[0]]
+                    maxCoords = [seq[1]]
+        
     endTime = time.time()
 
     executionTime = (endTime - startTime) * 1000  # Convert seconds to milliseconds
@@ -88,21 +103,34 @@ def sequenceValue(seq: list[str], targetSeqList: List[Tuple[List[str], int]]) ->
 
     return value
             
-read = readTextBreachProtocolInput("test1.txt")
-sequences = listOfSequences(read.matrix, read.buffer)
-result = breachProtocol(read)
+# read = readTextBreachProtocolInput("test1.txt")
+# sequences = listOfSequences(read.matrix, read.buffer)
+# resultAll = breachProtocol(read, "all")
+# resultSingle = breachProtocol(read, "single")
 
-for seq in sequences:
-    if (seq[0] == ['7A', 'BD', '7A', 'BD', '1C', 'BD', '55']):
-        print(seq)
-# print("Original matrix:")
-# for row in (result.matrix):
+# for seq in sequences:
+#     if (seq[0] == ['7A', 'BD', '7A', 'BD', '1C', 'BD', '55']):
+#         print(seq)
+# print("\nOriginal matrix:")
+# for row in (resultAll.matrix):
 #     print(row)
-# print(f"Max value: {result.sequenceValue}")
-# print(f"Execution time: {result.executionTime}")
+# print(f"Max value: {resultAll.sequenceValue}")
+# print(f"Execution time: {resultAll.executionTime}")
 # print("Max sequences:")
-# for seq in result.sequence:
+# for seq in resultAll.sequence:
 #     print(seq)
 # print("Max coordinates:")
-# for coord in result.coordinateList:
+# for coord in resultAll.coordinateList:
+#     print(coord)
+
+# print("\nOriginal matrix:")
+# for row in (resultSingle.matrix):
+#     print(row)
+# print(f"Max value: {resultSingle.sequenceValue}")
+# print(f"Execution time: {resultSingle.executionTime}")
+# print("Max sequences:")
+# for seq in resultSingle.sequence:
+#     print(seq)
+# print("Max coordinates:")
+# for coord in resultSingle.coordinateList:
 #     print(coord)
